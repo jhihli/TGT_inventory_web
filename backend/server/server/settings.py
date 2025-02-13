@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
+    'account',
+    'product',
     'rest_framework',
     'corsheaders'  # use this to allow requests from different origins
 ]
