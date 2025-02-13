@@ -8,5 +8,8 @@ class Product(models.Model):
     qty = models.IntegerField()
     date = models.DateField()
 
+    class Meta:
+        db_table = "product"
+
     def __str__(self):
         return self.number
