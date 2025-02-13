@@ -83,7 +83,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "djapp",
         "USER": "postgres",
-        "PASSWORD": "1020",
+        "PASSWORD": "1234",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -133,3 +133,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+AUTH_USER_MODEL = 'account.CustomUser'
