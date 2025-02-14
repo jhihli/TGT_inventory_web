@@ -1,23 +1,37 @@
-
+"use client"
 import Image from 'next/image';
-import { UpdateProduct, DeleteProduct } from '@/app/ui/dashboard/buttons';
+//import { UpdateProduct, DeleteProduct } from '@/app/ui/dashboard/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredProducts } from '@/app/lib/data';
-import { Product } from "@/interface/IDatatable";
-import { updateProduct } from '@/app/lib/actions';
+//import { fetchFilteredProducts } from '@/app/lib/data';
+import { Product } from "@/interface/IDatatable"
+import { getProducts } from "@/utils/product"
+//import { updateProduct } from '@/app/lib/actions';
+import {useState, useEffect } from 'react';
 
-export default async function ProductsTable({
-  query,
-  currentPage
-}: {
-  query: string;
-  currentPage: number;
+export default function ProductsTable() {
+  const [products, setProducts] = useState<Product[]>([]);
+  
+    useEffect(() => {
+      const fetchProducts = async () => {
+        try {
+          const data: Product[] = await getProducts();
+          setProducts(data);
+          console.log('1111111111111111');
+          console.log(data);
+        } catch (error) {
+          console.error("Error fetching products:", error);
+        }
+      };
+      fetchProducts();
+    }, []);
+  
+    useEffect(() => {
+      console.log('2222222222222222');
+      console.log('products', products);  // This will now log only when products change
+    }, [products]);
 
-}) {
-  const Allproducts = await fetchFilteredProducts(query, currentPage);
-
-
+  
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
@@ -69,6 +83,9 @@ export default async function ProductsTable({
                   Number
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
+                  Barcode
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
                   Qty
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
@@ -80,7 +97,7 @@ export default async function ProductsTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {Allproducts?.map((product) => (
+              {products?.map((product) => (
                 <tr
                   key={product.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
@@ -93,18 +110,23 @@ export default async function ProductsTable({
                       <p>{product.number}</p>
                     </div>
                   </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <div className="flex items-center gap-3">
+                      <p>{product.barcode}</p>
+                    </div>
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {product.qty}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(product.date.toISOString())}
+                    {product.date}
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                  {/* <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
                       <UpdateProduct id={product.id} />
                       <DeleteProduct id={product.id} />
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

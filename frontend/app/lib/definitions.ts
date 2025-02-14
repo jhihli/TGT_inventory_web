@@ -86,13 +86,3 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
-
-
-//1111111111111111111111111111111111
-
-export type ProductsTable = {
-  id: bigint;
-  number: string;
-  qty: number;
-  date: string;
-};

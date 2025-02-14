@@ -5,23 +5,40 @@ import { CreateInvoice } from '@/app/ui/invoices/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import Pagination from '@/app/ui/invoices/pagination';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { Suspense, useState } from 'react';
-import { fetchProductPages } from '@/app/lib/data';
-import { ProductCreateForm } from '@/app/ui/dashboard/product-create-form';
+import { Suspense, useState, useEffect } from 'react';
+import { getProducts } from "@/utils/product";
+import {Product} from "@/interface/IDatatable"
+//import { fetchProductPages } from '@/app/lib/data';
+//import { ProductCreateForm } from '@/app/ui/dashboard/product-create-form';
 
 
 
-export default async function Page(props: {
-    searchParams?: Promise<{
-        query?: string;
-        page?: string;
-    }>;
-}) {
+export default function Page() {
 
-    const searchParams = await props.searchParams;
-    const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || 1;
-    const totalPages = await fetchProductPages(query);
+    // const searchParams = await props.searchParams;
+    // const query = searchParams?.query || '';
+    // const currentPage = Number(searchParams?.page) || 1;
+
+
+  // const [products, setProducts] = useState<Product[]>([]);
+
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const data: Product[] = await getProducts();
+  //       setProducts(data);
+  //     } catch (error) {
+  //       console.error("Error fetching products:", error);
+  //     }
+  //   };
+  //   fetchProducts();
+  // }, []);
+
+  // useEffect(() => {
+  //   console.log('products', products);  
+  // }, [products]);
+
+    //const totalPages = await fetchProductPages(query);
 
     // const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -52,12 +69,13 @@ export default async function Page(props: {
             {/* {showCreateForm && (
                 <ProductCreateForm />
             )} */}
-            <Suspense key={query + currentPage} > {/* fallback={<InvoicesTableSkeleton />} */}
+            {/* <Suspense key={query + currentPage} >
                 <Table query={query} currentPage={currentPage} />
-            </Suspense>
-            <div className="mt-5 flex w-full justify-center">
+            </Suspense> */}
+            <Table /> 
+            {/* <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
-            </div>
+            </div> */}
         </div>
     );
 }
