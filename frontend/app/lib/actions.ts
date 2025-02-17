@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
- 
+
 const InvoiceSchema = z.object({
   id: z.string(),
   customerId: z.string({
@@ -19,7 +19,7 @@ const InvoiceSchema = z.object({
   }),
   date: z.string(),
 });
- 
+
 const CreateInvoice = InvoiceSchema.omit({ id: true, date: true });
 
 export type State = {
@@ -30,9 +30,9 @@ export type State = {
   };
   message?: string | null;
 };
- 
+
 // export async function createInvoice(prevState: State, formData: FormData) {
-    
+
 //     // Validate form fields using Zod
 //     const validatedFields = CreateInvoice.safeParse({
 //       customerId: formData.get('customerId'),
@@ -65,7 +65,7 @@ export type State = {
 //         message: 'Database Error: Failed to Create Invoice.',
 //       };
 //     }
-  
+
 //     // Revalidate the cache for the invoices page and redirect the user.
 //     revalidatePath('/dashboard/invoices');
 //     redirect('/dashboard/invoices');
@@ -73,9 +73,9 @@ export type State = {
 
 //// Use Zod to update the expected types
 //const UpdateInvoice = InvoiceSchema.omit({ id: true, date: true });
- 
+
 // ...
- 
+
 // export async function updateInvoice(
 //   id: string,
 //   prevState: State,
@@ -125,7 +125,7 @@ export type State = {
 //   }
 // }
 
-  
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,

@@ -1,13 +1,7 @@
-
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { authConfig } from '@/auth.config';
-//import { sql } from '@vercel/postgres';
-import { z } from 'zod';
-//import type { User } from '@/app/lib/definitions';
-import type { User } from "@/interface/IDatatable"
-import bcrypt from 'bcrypt';
-
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from "zod";
+import type { User } from "@/interface/IDatatable";
 
 async function getUser(username: string) {
     const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
@@ -25,30 +19,26 @@ async function getUser(username: string) {
             },
         });
 
-
         if (!response.ok) {
-            console.log("222222222");
-            throw new Error(`Error: ${response.status} - ${response.statusText} -  ${response.json}`);
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
 
         const data: User[] = await response.json();
-
-        if (data.length === 0) {
-            console.log("User not found");
-            return null;
-        }
-
-        return data[0]; // Ensure that the backend response structure matches
+        return data.length > 0 ? data[0] : null;
     } catch (error) {
         console.error("Unexpected error:", error);
         return null;
     }
 }
 
-export const { auth, signIn, signOut } = NextAuth({
-    ...authConfig,
+const authOptions = {
     providers: [
-        Credentials({
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" },
+            },
             async authorize(credentials) {
                 try {
                     const parsedCredentials = z
@@ -62,29 +52,15 @@ export const { auth, signIn, signOut } = NextAuth({
 
                     const { username, password } = parsedCredentials.data;
 
-                    // Fetch user from Django backend
                     const user = await getUser(username);
-
-
                     if (!user || !user.password) {
                         console.log("User not found or missing password");
                         return null;
                     }
 
-
-                    // const passwordsMatch = await bcrypt.compare(password, user.password);
-                    // if (!passwordsMatch) {
-                    //     console.log("Incorrect password");
-                    //     return null;
-                    // }
-
-                    //  Convert `bigint` to `string`
-                    console.log("1111222221111111111111111111");
-                    console.log(user);
-
                     return {
                         ...user,
-                        id: user.id.toString(), // Fixes NextAuth type error
+                        id: user.id.toString(), // Ensure ID is string type
                         username: user.username,
                         role: user.role,
                     };
@@ -95,6 +71,37 @@ export const { auth, signIn, signOut } = NextAuth({
             },
         }),
     ],
+    pages: {
+        signIn: "/login",
+    },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.role = user.role; // Store role in token
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.role = token.role; // Pass role to session
+            }
+            return session;
+        },
+        authorized({ auth, request: { nextUrl } }) {
+            console.log("authorized callback triggered");
+            const isLoggedIn = !!auth?.user;
+            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
 
+            if (isOnDashboard) {
+                return isLoggedIn ? true : false;
+            } else if (isLoggedIn) {
+                return Response.redirect(new URL("/dashboard", nextUrl));
+            }
+            return true;
+        },
+    },
+    secret: process.env.NEXTAUTH_SECRET,
+};
 
-});
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

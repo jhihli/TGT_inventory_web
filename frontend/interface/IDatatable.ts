@@ -1,5 +1,5 @@
 export interface Product {
-    id: bigint;
+    id: bigint | string;
     number: string;
     barcode: string;
     qty: number;
@@ -9,8 +9,8 @@ export interface Product {
     categoty: string;
 }
 
-export interface User {
-    id: bigint;
+export type User = {
+    id: bigint | string;
     password: string;
     last_login: string;
     is_speruser: string;
@@ -22,5 +22,5 @@ export interface User {
     is_active: string;
     date_joined: string;
     role: string;
-  
+
 }

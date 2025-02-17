@@ -7,9 +7,8 @@ import Pagination from '@/app/ui/invoices/pagination';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense, useState, useEffect } from 'react';
 import { getProducts } from "@/utils/product";
-import {Product} from "@/interface/IDatatable"
-//import { fetchProductPages } from '@/app/lib/data';
-//import { ProductCreateForm } from '@/app/ui/dashboard/product-create-form';
+import { Product } from "@/interface/IDatatable"
+
 
 
 
@@ -20,23 +19,23 @@ export default function Page() {
     // const currentPage = Number(searchParams?.page) || 1;
 
 
-  // const [products, setProducts] = useState<Product[]>([]);
+    // const [products, setProducts] = useState<Product[]>([]);
 
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const data: Product[] = await getProducts();
-  //       setProducts(data);
-  //     } catch (error) {
-  //       console.error("Error fetching products:", error);
-  //     }
-  //   };
-  //   fetchProducts();
-  // }, []);
+    // useEffect(() => {
+    //   const fetchProducts = async () => {
+    //     try {
+    //       const data: Product[] = await getProducts();
+    //       setProducts(data);
+    //     } catch (error) {
+    //       console.error("Error fetching products:", error);
+    //     }
+    //   };
+    //   fetchProducts();
+    // }, []);
 
-  // useEffect(() => {
-  //   console.log('products', products);  
-  // }, [products]);
+    // useEffect(() => {
+    //   console.log('products', products);  
+    // }, [products]);
 
     //const totalPages = await fetchProductPages(query);
 
@@ -72,7 +71,7 @@ export default function Page() {
             {/* <Suspense key={query + currentPage} >
                 <Table query={query} currentPage={currentPage} />
             </Suspense> */}
-            <Table /> 
+            <Table />
             {/* <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
             </div> */}
