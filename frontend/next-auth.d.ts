@@ -9,14 +9,16 @@ declare module "next-auth" {
 
     interface Session {
         user: {
+            id: string,
+            username: string,
             role: string; // Ensure session.user includes role
-        } & DefaultSession["user"];
+        } & DefaultSession
     }
 }
 
 // Extend the built-in `JWT` type
 declare module "next-auth/jwt" {
-    interface JWT {
+    interface JWT extends DefaultJWT{
         role: string; // Ensure JWT includes role
     }
 }
