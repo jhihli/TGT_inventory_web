@@ -20,10 +20,13 @@ const links = [
 
 export default function NavLinks() {
 
-  const { data: session } = useSession();
+  const { data: session, status  } = useSession();
   console.log("333333333333333333333333333");
-  console.log('Session:', session);
+  console.log(session);
+  console.log(status);
   const userRole = session?.user?.role;
+  console.log('userRole:', userRole);
+  
 
   return (
     <>

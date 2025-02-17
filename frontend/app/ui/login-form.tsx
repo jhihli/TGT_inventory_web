@@ -7,19 +7,52 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
-import { authenticate } from '@/app/lib/actions';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { signIn } from "next-auth/react";
 import { useSearchParams } from 'next/navigation';
+import { useState } from "react";
 
 export default function LoginForm() {
 
   const searchParams = useSearchParams();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isPending, setIsPending] = useState(false);
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    
+    event.preventDefault();
+    setIsPending(true);
+    setErrorMessage("");
+   
+    const formData = new FormData(event.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
+    
+    console.log("🔹 Attempting to sign in with:", { username, password });
+    try {
+     
+      const result = await signIn("Credentials", {
+        redirect: false,
+        username,
+        password,
+      });
+      console.log("99999999999999999999999");
+      console.log(result)
+      if (result?.error) {
+        setErrorMessage("Invalid credentials. Please try again.");
+      } else {
+        // Redirect only if login is successful
+        window.location.href = callbackUrl;
+      }
+    } catch (error) {
+      setErrorMessage("An unexpected error occurred.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
           Please log in.
@@ -65,16 +98,14 @@ export default function LoginForm() {
           </div>
         </div>
         <input type="hidden" name="redirectTo" value={callbackUrl} />
-        <Button className="mt-4 w-full" aria-disabled={isPending}>
-          Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+        <Button type="submit" className="mt-4 w-full" disabled={isPending}>
+          {isPending ? "Logging in..." : "Log in"} <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
         <div className="flex h-8 items-end space-x-1">
-          {errorMessage === 'CredentialSignin' && (
+        {errorMessage && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p aria-live="polite" className="text-sm text-red-500">
-                Invalid credentials
-              </p>
+              <p className="text-sm text-red-500">{errorMessage}</p>
             </>
           )}
         </div>
