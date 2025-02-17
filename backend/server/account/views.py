@@ -8,19 +8,23 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from django.contrib.auth.hashers import check_password
 
 class UserListAPIView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]  # Allow only authenticated users
+    ##permission_classes = [IsAuthenticated]  # Allow only authenticated users
     
     def get_queryset(self):
         queryset = CustomUser.objects.all()
         role = self.request.query_params.get('role', None)
+        username = self.request.query_params.get('username', None)
+       
+        if username:
+            queryset = queryset.filter(username=username)  # Filter users by username
         if role:
             queryset = queryset.filter(role=role)  # Filter users by role
         return queryset
-
 
 @api_view(['GET'])
 def get_users(request):

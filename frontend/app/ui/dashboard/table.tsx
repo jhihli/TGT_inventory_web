@@ -7,31 +7,28 @@ import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { Product } from "@/interface/IDatatable"
 import { getProducts } from "@/utils/product"
 //import { updateProduct } from '@/app/lib/actions';
-import {useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ProductsTable() {
   const [products, setProducts] = useState<Product[]>([]);
-  
-    useEffect(() => {
-      const fetchProducts = async () => {
-        try {
-          const data: Product[] = await getProducts();
-          setProducts(data);
-          console.log('1111111111111111');
-          console.log(data);
-        } catch (error) {
-          console.error("Error fetching products:", error);
-        }
-      };
-      fetchProducts();
-    }, []);
-  
-    useEffect(() => {
-      console.log('2222222222222222');
-      console.log('products', products);  // This will now log only when products change
-    }, [products]);
 
-  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data: Product[] = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    console.log('products', products);  // This will now log only when products change
+  }, [products]);
+
+
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
