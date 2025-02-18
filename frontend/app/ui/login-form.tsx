@@ -28,16 +28,15 @@ export default function LoginForm() {
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
     
-    console.log("🔹 Attempting to sign in with:", { username, password });
+    
     try {
      
-      const result = await signIn("Credentials", {
+      const result = await signIn("credentials", {
         redirect: false,
         username,
         password,
       });
-      console.log("99999999999999999999999");
-      console.log(result)
+  
       if (result?.error) {
         setErrorMessage("Invalid credentials. Please try again.");
       } else {
