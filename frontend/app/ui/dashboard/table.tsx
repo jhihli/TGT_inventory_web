@@ -24,9 +24,9 @@ export default function ProductsTable() {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    console.log('products', products);  // This will now log only when products change
-  }, [products]);
+  // useEffect(() => {
+  //   console.log('products1', products);  // This will now log only when products change
+  // }, [products]);
 
 
   return (
