@@ -8,9 +8,10 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
+import { Product } from "@/interface/IDatatable"
+
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
 
 
 export async function fetchRevenue() {
@@ -216,5 +217,98 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
+  }
+}
+
+
+
+/////////////////////////////////////////////////////////////////////
+
+
+export async function getProducts(
+  query: string,
+  currentPage: number
+): Promise<Product[]> {
+  const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
+
+  if (!API_URL) {
+    console.error("API URL is not set!");
+    return [];
+  }
+
+  // Construct the URL with query parameters
+  const url = new URL(`${API_URL}/product/products/`); 
+
+  // Add search parameters if provided
+  if (query) {
+    url.searchParams.append("search", query);
+  }
+
+  url.searchParams.append("page", currentPage.toString());
+
+  //The url should be like 'http://127.0.0.1:8000/product/products/?search=GGGGGG&page=1'
+  
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
+      );
+    }
+
+    const data = await response.json();
+    console.log('data',data);
+    //return results []
+    return data.results; 
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return [];
+  }
+}
+
+
+export async function fetchProductsTotalPage(query: string): Promise<number> {
+  const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
+
+  if (!API_URL) {
+    console.error("API URL is not set!");
+    return 0;
+  }
+
+  const url = new URL(`${API_URL}/product/products/`); // Use the same endpoint as getProducts
+  if (query) {
+    url.searchParams.append("search", query);
+  }
+  
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
+      );
+    }
+
+    const data = await response.json();
+    
+    const totalPages = Math.ceil(Number(data.count) / ITEMS_PER_PAGE);
+    return totalPages; 
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return 0;
   }
 }
