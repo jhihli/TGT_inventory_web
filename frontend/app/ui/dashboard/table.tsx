@@ -1,33 +1,23 @@
-"use client"
+
 import Image from 'next/image';
 //import { UpdateProduct, DeleteProduct } from '@/app/ui/dashboard/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-//import { fetchFilteredProducts } from '@/app/lib/data';
+import { getProducts } from '@/app/lib/data';
 import { Product } from "@/interface/IDatatable"
-import { getProducts } from "@/utils/product"
 //import { updateProduct } from '@/app/lib/actions';
-import { useState, useEffect } from 'react';
+//import { useState, useEffect } from 'react';
 
-export default function ProductsTable() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default async function ProductsTable({
+  query,
+  currentPage,
+}: {
+  query: string;
+  currentPage: number;
+}) {
+  const products = await getProducts(query, currentPage);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data: Product[] = await getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  // useEffect(() => {
-  //   console.log('products1', products);  // This will now log only when products change
-  // }, [products]);
-
+  console.log("ProductsTable products:", products);
 
   return (
     <div className="mt-6 flow-root">

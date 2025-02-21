@@ -1,80 +1,45 @@
-"use client"
+
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/dashboard/table';
-import { CreateInvoice } from '@/app/ui/invoices/buttons';
+import { CreateProduct } from '@/app/ui/dashboard/buttons';
 import { lusitana } from '@/app/ui/fonts';
-import Pagination from '@/app/ui/invoices/pagination';
-import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { Suspense, useState, useEffect } from 'react';
-import { getProducts } from "@/utils/product";
-import { Product } from "@/interface/IDatatable"
+import Pagination from '@/app/ui/dashboard/pagination';
+import { ProductsTableSkeleton } from '@/app/ui/skeletons';
+import { Suspense} from 'react'; //, useState, useEffect 
+import { fetchProductsTotalPage } from '@/app/lib/data';
 
 
 
-
-export default function Page() {
-
-    // const searchParams = await props.searchParams;
-    // const query = searchParams?.query || '';
-    // const currentPage = Number(searchParams?.page) || 1;
-
-
-    // const [products, setProducts] = useState<Product[]>([]);
-
-    // useEffect(() => {
-    //   const fetchProducts = async () => {
-    //     try {
-    //       const data: Product[] = await getProducts();
-    //       setProducts(data);
-    //     } catch (error) {
-    //       console.error("Error fetching products:", error);
-    //     }
-    //   };
-    //   fetchProducts();
-    // }, []);
-
-    // useEffect(() => {
-    //   console.log('products', products);  
-    // }, [products]);
-
-    //const totalPages = await fetchProductPages(query);
-
-    // const [showCreateForm, setShowCreateForm] = useState(false);
-
-    // const handleCreateInvoiceClick = () => {
-    //     setShowCreateForm(true);
-    // };
-
+export default async function Page(props: {
+    searchParams?: Promise<{
+      query?: string;
+      page?: string;
+    }>;
+  }) {
+    const searchParams = await props.searchParams;
+    const query = searchParams?.query || '';  // Default to page 1
+    const currentPage = Number(searchParams?.page) || 1;
+    const totalPages = await fetchProductsTotalPage(query);
+  
     return (
         <div className="w-full">
-            {/* <div className="flex w-full items-center justify-between">
+            <div className="flex w-full items-center justify-between">
                 <h1 className={`${lusitana.className} text-2xl`}>Products</h1>
-            </div> */}
-            {/* <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                 <Search placeholder="Search products..." />
 
-                <button
-                    onClick={handleCreateInvoiceClick}
-                    className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                >
-                    <span className="hidden md:block">Create Product</span>{' '}
-
-                </button>
+                <CreateProduct />
 
 
-            </div> */}
+            </div>
 
-            {/* Conditionally render the create form */}
-            {/* {showCreateForm && (
-                <ProductCreateForm />
-            )} */}
-            {/* <Suspense key={query + currentPage} >
-                <Table query={query} currentPage={currentPage} />
-            </Suspense> */}
-            <Table />
-            {/* <div className="mt-5 flex w-full justify-center">
+            <Suspense key={query + currentPage} fallback={<ProductsTableSkeleton />}> 
+                <Table query={query} currentPage={currentPage} /> {/*query={query} currentPage={currentPage}*/}
+            </Suspense>
+            <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
-            </div> */}
+            </div>
         </div>
     );
 }
