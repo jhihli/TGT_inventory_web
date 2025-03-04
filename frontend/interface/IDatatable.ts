@@ -4,9 +4,9 @@ export interface Product {
     barcode: string;
     qty: number;
     date: string;
-    vendor: string;
+    vender: string;
     client: string;
-    categoty: string;
+    category: string;
 }
 
 export type User = {
@@ -24,3 +24,4 @@ export type User = {
     role: string;
 
 }
+
