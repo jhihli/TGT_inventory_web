@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    console.log("🔹 Middleware triggered");
+    //console.log("🔹 Middleware triggered");
 
     const token = req.nextauth.token;
     const isLoggedIn = !!token;
@@ -21,7 +21,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        console.log("✅ Authorized check:", token);
+        //console.log("✅ Authorized check:", token);
         return !!token; // Allow access only if token exists
       },
     },

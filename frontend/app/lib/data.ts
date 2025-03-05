@@ -1,3 +1,5 @@
+'use server';
+
 import postgres from 'postgres';
 import {
   CustomerField,
@@ -226,37 +228,35 @@ export async function fetchFilteredCustomers(query: string) {
 
 
 export async function getProducts(
-  query: string,
-  currentPage: number
-): Promise<Product[]> {
-  const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
-
-  if (!API_URL) {
-    console.error("API URL is not set!");
-    return [];
-  }
-
-  // Construct the URL with query parameters
-  const url = new URL(`${API_URL}/product/products/`); 
-
-  // Add search parameters if provided
-  if (query) {
-    url.searchParams.append("search", query);
-  }
-
-  url.searchParams.append("page", currentPage.toString());
-
-  //The url should be like 'http://127.0.0.1:8000/product/products/?search=GGGGGG&page=1'
-  
+  query: string = '',
+  currentPage: number = 1,
+  sortField: string = '',
+  sortOrder: 'asc' | 'desc' = 'asc'
+) {
   try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // 確保頁碼至少為1
+    const page = Math.max(1, currentPage);
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_Django_API_URL}/product/products/?` +
+      `search=${query}&` +
+      `page=${page}&` +
+      `limit=${ITEMS_PER_PAGE}&` +
+      `sortField=${sortField}&` +
+      `sortOrder=${sortOrder}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      }
+    );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return []; // 返回空陣列而不是拋出錯誤
+      }
       const errorData = await response.json();
       throw new Error(
         `Error: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
@@ -264,31 +264,26 @@ export async function getProducts(
     }
 
     const data = await response.json();
-    console.log('data',data);
-    //return results []
-    return data.results; 
+    return data.results || [];
   } catch (error) {
     console.error("Unexpected error:", error);
     return [];
   }
 }
 
-
 export async function fetchProductsTotalPage(query: string): Promise<number> {
-  const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
-
-  if (!API_URL) {
-    console.error("API URL is not set!");
-    return 0;
-  }
-
-  const url = new URL(`${API_URL}/product/products/`); // Use the same endpoint as getProducts
-  if (query) {
-    url.searchParams.append("search", query);
-  }
-  
-
   try {
+    const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
+    if (!API_URL) {
+      console.error("API URL is not set!");
+      return 1;
+    }
+
+    const url = new URL(`${API_URL}/product/products/`);
+    if (query) {
+      url.searchParams.append("search", query);
+    }
+
     const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
@@ -297,18 +292,66 @@ export async function fetchProductsTotalPage(query: string): Promise<number> {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        `Error: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
-      );
+      return 1; // 發生錯誤時返回1而不是拋出錯誤
     }
 
     const data = await response.json();
-    
-    const totalPages = Math.ceil(Number(data.count) / ITEMS_PER_PAGE);
-    return totalPages; 
+    const count = Number(data.count) || 0;
+    return Math.max(1, Math.ceil(count / ITEMS_PER_PAGE));
   } catch (error) {
     console.error("Unexpected error:", error);
-    return 0;
+    return 1;
+  }
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  const API_URL = process.env.NEXT_PUBLIC_Django_API_URL;
+
+  if (!API_URL) {
+    console.error("API URL is not set!");
+    return null;
+  }
+
+  // Use the list endpoint with a filter for the specific ID
+  const url = new URL(`${API_URL}/product/products/`);
+  url.searchParams.append("id", id);
+  
+  console.log(`Fetching product with ID ${id} from URL: ${url.toString()}`);
+  
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: 'no-store' // Ensure we get fresh data
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`Product with ID ${id} not found`);
+        return null;
+      }
+      
+      console.error(`Error fetching product: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Response body: ${errorText}`);
+      
+      return null;
+    }
+
+    const data = await response.json();
+    console.log(`Product data received:`, data);
+    
+    // The API returns a list, so we need to get the first item
+    if (data.results && data.results.length > 0) {
+      return data.results[0];
+    }
+    
+    console.log(`No product found with ID ${id}`);
+    return null;
+  } catch (error) {
+    console.error(`Error fetching product with ID ${id}:`, error);
+    return null;
   }
 }

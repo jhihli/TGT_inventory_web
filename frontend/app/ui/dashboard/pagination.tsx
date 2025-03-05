@@ -4,26 +4,35 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { generatePagination } from '@/app/lib/utils';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react'; // 添加 useEffect 導入
 
 export default function Pagination({ totalPages }: { totalPages: number }) {
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const currentPage = Number(searchParams.get('page')) || 1;
-
 
   const createPageURL = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', pageNumber.toString());
     return `${pathname}?${params.toString()}`;
   };
-  
+
+  // 確保當前頁面在有效範圍內
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      const params = new URLSearchParams(searchParams);
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }, [currentPage, totalPages, pathname, router, searchParams]);
+
   const allPages = generatePagination(currentPage, totalPages);
 
   return (
     <>
-      <div className="inline-flex">
+      <div className="flex justify-end">
         <PaginationArrow
           direction="left"
           href={createPageURL(currentPage - 1)}

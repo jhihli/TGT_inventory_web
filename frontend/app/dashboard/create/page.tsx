@@ -1,7 +1,8 @@
 import Form from '@/app/ui/dashboard/create-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
+import { Suspense } from 'react';
  
-export default async function Page() {
+export default function Page() {
   //const customers = await fetchCustomers();
  
   return (
@@ -16,7 +17,9 @@ export default async function Page() {
           },
         ]}
       />
-      <Form/>
+      <Suspense fallback={<div>Loading form...</div>}>
+        <Form/>
+      </Suspense>
     </main>
   );
 }
